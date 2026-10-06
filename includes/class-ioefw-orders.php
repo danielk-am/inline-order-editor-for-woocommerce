@@ -340,7 +340,7 @@ final class IOEFW_Orders {
 		$item_id = absint( $item_id );
 		$item    = $item_id ? $order->get_item( $item_id, false ) : false;
 
-		if ( ! $item ) {
+		if ( ! $item || ! in_array( $item->get_type(), array( 'line_item', 'fee', 'shipping' ), true ) ) {
 			return new WP_Error( 'ioefw_no_item', __( 'That line is no longer on this order.', 'inline-order-editor-for-woocommerce' ) );
 		}
 
@@ -464,8 +464,8 @@ final class IOEFW_Orders {
 	 */
 	public static function settle( WC_Order $order, array $typed = array(), array $tax_args = array() ) {
 		// The order screen sends the address as it stands in the form. Without one, WooCommerce uses the saved address.
-		$tax_args = isset( $tax_args['country'] ) ? $tax_args : array();
-		$again    = false;
+		$tax_args  = isset( $tax_args['country'] ) ? $tax_args : array();
+		$converted = false;
 
 		$order->calculate_taxes( $tax_args );
 
@@ -479,9 +479,18 @@ final class IOEFW_Orders {
 
 			foreach ( $amounts as $prop => $amount ) {
 				$setter = 'set_' . $prop;
+				$amount = (float) $amount;
 
-				if ( is_callable( array( $item, $setter ) ) ) {
-					$item->{$setter}( (float) $amount - array_sum( WC_Tax::calc_tax( (float) $amount, $rates, true ) ) );
+				if ( ! is_callable( array( $item, $setter ) ) ) {
+					continue;
+				}
+
+				if ( 'fee' === $item->get_type() && $amount < 0 ) {
+					// WooCommerce spreads the tax on a discount fee across the order's tax rates. Use the share it worked out.
+					$tax = (float) $item->get_total_tax();
+					$item->{$setter}( 0.0 !== $amount + $tax ? $amount * $amount / ( $amount + $tax ) : $amount );
+				} else {
+					$item->{$setter}( $amount - array_sum( WC_Tax::calc_tax( $amount, $rates, true ) ) );
 				}
 			}
 
@@ -490,16 +499,17 @@ final class IOEFW_Orders {
 			}
 
 			$item->save();
-			$again = true;
+			$converted = true;
+		}
+
+		// The converted lines need their tax before anything reads it.
+		if ( $converted ) {
+			$order->calculate_taxes( $tax_args );
 		}
 
 		// A coupon on the order follows the new prices, as it would at the checkout.
 		if ( $order->get_items( 'coupon' ) && is_callable( array( $order, 'recalculate_coupons' ) ) ) {
 			$order->recalculate_coupons();
-			$again = true;
-		}
-
-		if ( $again ) {
 			$order->calculate_taxes( $tax_args );
 		}
 
@@ -553,6 +563,11 @@ final class IOEFW_Orders {
 			$values['price']    = $quantity > 0 ? $subtotal / $quantity : 0;
 			// A line with a product behind it keeps the catalogue's name.
 			$values['fields'] = $item->get_product() ? array( 'price', 'quantity', 'total' ) : array( 'name', 'price', 'quantity', 'total' );
+
+			// With a coupon on the order a line's total is its price less the coupon, so it is not typed.
+			if ( $order->get_items( 'coupon' ) ) {
+				$values['fields'] = array_values( array_diff( $values['fields'], array( 'total' ) ) );
+			}
 		}
 
 		/**

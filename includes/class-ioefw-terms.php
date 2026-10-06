@@ -203,7 +203,7 @@ final class IOEFW_Terms {
 		}
 
 		if ( $plain_text ) {
-			echo "\n" . esc_html( wp_strip_all_tags( wc_strtoupper( self::heading() ) ) ) . "\n\n" . esc_html( wp_strip_all_tags( $terms ) ) . "\n\n";
+			echo "\n" . esc_html( wp_strip_all_tags( wptexturize( wc_strtoupper( self::heading() ) ) ) ) . "\n\n" . esc_html( wp_strip_all_tags( wptexturize( $terms ) ) ) . "\n\n";
 			return;
 		}
 

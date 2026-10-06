@@ -194,6 +194,17 @@ $ioefw_group(
 		$check( 'A negative total is refused.', is_wp_error( IOEFW_Orders::update_item( $order, $id, 'total', '-1' ) ) );
 		$check( 'An empty name is refused.', is_wp_error( IOEFW_Orders::update_item( $order, $id, 'name', ' ' ) ) );
 		$check( 'An unknown field is refused.', is_wp_error( IOEFW_Orders::update_item( $order, $id, 'tax_class', 'x' ) ) );
+
+		$tax_line = new WC_Order_Item_Tax();
+		$tax_line->set_rate_id( 0 );
+		$tax_line->set_label( 'Test tax line' );
+		$order->add_item( $tax_line );
+		$order->save();
+		$check( 'A tax or coupon line of the order is refused, not treated as an item.', is_wp_error( IOEFW_Orders::update_item( wc_get_order( $order->get_id() ), $tax_line->get_id(), 'total', '1' ) ) );
+		$order = wc_get_order( $order->get_id() );
+		$order->remove_item( $tax_line->get_id() );
+		$order->save();
+		$order = wc_get_order( $order->get_id() );
 		$check( 'The refused changes left the line alone.', $ioefw_near( $ioefw_fresh( $order )->get_total(), 30 ) );
 
 		$other    = IOEFW_Orders::add_custom_item( $ioefw_order(), array( 'name' => 'Other order line', 'price' => '5' ) );
@@ -354,6 +365,38 @@ $ioefw_group(
 		$order = IOEFW_Orders::update_item( $order, $fee->get_id(), 'name', 'Express fee' );
 		$fee   = $ioefw_first( $order, 'fee' );
 		$check( 'Renaming a fee keeps its amount.', 'Express fee' === $fee->get_name() && $ioefw_near( $fee->get_total(), 10 ) && $ioefw_near( $order->get_total(), 74 ) );
+
+		$order = IOEFW_Orders::update_item( $order, $fee->get_id(), 'total', '-11' );
+		$check( 'A fee typed below zero is a discount, read with tax: 63 less 11 is 52.', $ioefw_near( $order->get_total(), 52 ) );
+
+		// An order from the checkout records that its prices include tax, and has a coupon.
+		$coupon = new WC_Coupon();
+		$coupon->set_code( 'ioefw-incl-' . strtolower( wp_generate_password( 6, false ) ) );
+		$coupon->set_discount_type( 'percent' );
+		$coupon->set_amount( 10 );
+		$coupon->save();
+		$ioefw_made['coupons'][] = $coupon->get_id();
+
+		$product = new WC_Product_Simple();
+		$product->set_name( 'IOEFW test product with tax' );
+		$product->set_regular_price( '55' );
+		$product->set_status( 'publish' );
+		$product->save();
+		$ioefw_made['products'][] = $product->get_id();
+
+		$checkout = wc_create_order( array( 'status' => 'pending' ) );
+		$checkout->set_billing_country( WC()->countries->get_base_country() );
+		$ioefw_made['orders'][] = $checkout->get_id();
+		$line_id = $checkout->add_product( $product, 1 );
+		$checkout->calculate_totals();
+		$checkout->apply_coupon( $coupon->get_code() );
+		$checkout = wc_get_order( $checkout->get_id() );
+		$check( 'An order from the checkout records that prices include tax. With 10% off, 55 becomes 49.50.', true === $checkout->get_prices_include_tax() && $ioefw_near( $checkout->get_total(), 49.5 ) );
+
+		$checkout = IOEFW_Orders::update_item( $checkout, $line_id, 'price', '110' );
+		$check( 'A new price with tax under a coupon: 110 less 10% is 99, to the cent.', $ioefw_near( $checkout->get_total(), 99 ) );
+		$check( 'With a coupon on the order, a line offers its price and quantity, and its total follows.', array( 'price', 'quantity' ) === IOEFW_Orders::get_state( $checkout )['items'][ $line_id ]['fields'] );
+		$check( 'Typing a total on that line is refused.', is_wp_error( IOEFW_Orders::update_item( $checkout, $line_id, 'total', '60' ) ) );
 	}
 );
 
@@ -447,6 +490,16 @@ $ioefw_group(
 			}
 		);
 		$check( 'A plain-text email shows them without markup.', false !== strpos( $plain, "TERMS\n\nPay by Friday." ) && false === strpos( $plain, '<' ) );
+
+		IOEFW_Terms::set( $order, "Don't forget: pay by Friday." );
+		$apostrophe = $ioefw_output(
+			static function () use ( $order ) {
+				IOEFW_Terms::email( wc_get_order( $order->get_id() ), false, true, null );
+			}
+		);
+		$check( "An apostrophe is written the way WooCommerce's plain-text emails keep it.", false !== strpos( $apostrophe, 'Don&#8217;t forget' ) && false === strpos( $apostrophe, '&#039;' ) );
+		IOEFW_Terms::set( wc_get_order( $order->get_id() ), $text );
+		$order = wc_get_order( $order->get_id() );
 
 		$mailer  = WC()->mailer();
 		$invoice = $mailer->get_emails()['WC_Email_Customer_Invoice'];

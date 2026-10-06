@@ -60,6 +60,7 @@ Draft is a status WooCommerce uses for unfinished checkouts, and it deletes Draf
 * Lines can be changed on orders WooCommerce treats as editable: Pending payment, On hold, and new orders. To change a paid order, set its status back to Pending payment first.
 * An order that has a refund is left alone.
 * Percentage and fixed product coupons apply to catalogue products only, so an item you typed in keeps its price. A fixed cart coupon is shared across every line. This is how WooCommerce applies coupons.
+* On an order with a coupon, change a line's price or quantity and its total follows the coupon. Each change applies the order's coupons again, which replaces a discount typed by hand on any line.
 * An item you typed in has no stock, SKU or weight. Analytics > Products has no product to list it under, so typed items appear there together in one row, marked "(Deleted)".
 * Changing a line recalculates the order's taxes. A tax amount you typed by hand with the pencil is replaced by the calculated one.
 * Tested on WordPress 7.1.2 with WooCommerce 11.1.2 and High-Performance Order Storage. Not tested with subscriptions, bookings, product bundles or tax services such as WooCommerce Tax and Avalara.
@@ -102,7 +103,7 @@ Draft is a status WooCommerce uses for checkouts that were started and not finis
 
 = Do my prices include tax when I type them? =
 
-They follow your store. If WooCommerce > Settings > Tax says prices are entered inclusive of tax, the amounts you type on an order include tax. If it says exclusive, tax is added on top. The line under the items says which one applies.
+They follow your store. If WooCommerce > Settings > Tax says prices are entered inclusive of tax, the amounts you type on an order include tax, and the line under the items says so. If it says exclusive, tax is added on top.
 
 = Does a coupon apply to an item I typed in? =
 

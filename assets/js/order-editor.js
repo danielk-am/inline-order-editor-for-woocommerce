@@ -44,6 +44,7 @@
 	let notice = null; // The message in the status line.
 	let noticeTimer = null;
 	let submitting = false; // The order form itself is being saved.
+	let pendingSubmit = null; // The order form, held back until a save in flight has answered.
 	let lastPointer = 'mouse';
 	let searchTimer = null;
 	let searchCount = 0;
@@ -87,12 +88,15 @@
 
 	// A typed number, read with the store's decimal separator. NaN when it is not a number.
 	function parseNumber( text ) {
-		let value = String( text ).replace( /\s/g, '' );
+		// As wc_format_decimal() reads it: the store's separator becomes a dot, and the last dot is the decimal point.
+		let value = String( text )
+			.split( settings.decimalPoint )
+			.join( '.' )
+			.replace( /[^0-9.\-]/g, '' );
+		const point = value.lastIndexOf( '.' );
 
-		if ( '.' === settings.decimalPoint ) {
-			value = value.replace( /,/g, '' );
-		} else {
-			value = value.split( '.' ).join( '' ).replace( settings.decimalPoint, '.' );
+		if ( -1 !== point ) {
+			value = value.slice( 0, point ).split( '.' ).join( '' ) + value.slice( point );
 		}
 
 		return '' === value ? NaN : Number( value );
@@ -392,10 +396,10 @@
 		}
 
 		if ( 'add' === target.type ) {
-			const name = document.querySelector( CORE.box + ' .ioefw-add__name' );
+			const field = addField( target.part || 'name' ) || addField( 'name' );
 
-			if ( name ) {
-				name.focus();
+			if ( field ) {
+				field.focus();
 			}
 
 			return;
@@ -412,11 +416,58 @@
 
 	/* ---------- Changing a line in place ---------- */
 
-	// WooCommerce's own edit mode, opened with the pencil, shows the row's .edit fields.
-	function inCoreEditMode( row ) {
-		const edit = row.querySelector( '.edit' );
+	// WooCommerce's own edit mode, opened with the pencil, shows a row's .edit fields. A redraw of the
+	// box would throw away what was typed there, so nothing of ours runs while it is open.
+	function coreEditOpen() {
+		const container = box();
 
-		return !! edit && null !== edit.offsetParent;
+		return (
+			!! container &&
+			Array.prototype.some.call( container.querySelectorAll( CORE.table + ' tr .edit' ), function ( edit ) {
+				return null !== edit.offsetParent;
+			} )
+		);
+	}
+
+	function refuseWhileCoreEdits() {
+		if ( ! coreEditOpen() ) {
+			return false;
+		}
+
+		showNotice(
+			__(
+				'Save or cancel the changes you started with the pencil first.',
+				'inline-order-editor-for-woocommerce'
+			),
+			'error'
+		);
+
+		return true;
+	}
+
+	// Where focus is, in words that survive a redraw of the box.
+	function focusPlace() {
+		const active = document.activeElement;
+
+		if ( ! active || ! active.closest || ! active.closest( CORE.box ) ) {
+			return null;
+		}
+
+		if ( active.classList.contains( 'ioefw-cell' ) ) {
+			return {
+				itemId: active.closest( 'tr' ).getAttribute( 'data-order_item_id' ),
+				field: active.getAttribute( 'data-ioefw-field' ),
+				edit: false,
+			};
+		}
+
+		if ( active.closest( '.ioefw-add__row' ) ) {
+			const part = ( active.className.match( /ioefw-add__([a-z]+)/ ) || [] )[ 1 ];
+
+			return { type: 'add', part: part || 'name' };
+		}
+
+		return null;
 	}
 
 	function neighbour( cell, step ) {
@@ -438,7 +489,7 @@
 		const row = cell.closest( 'tr' );
 		const host = cell.closest( 'td' );
 
-		if ( busy || editing || ! state || ! state.editable || ! row || ! host || inCoreEditMode( row ) ) {
+		if ( busy || editing || ! state || ! state.editable || ! row || ! host || refuseWhileCoreEdits() ) {
 			return;
 		}
 
@@ -506,6 +557,10 @@
 		input.select();
 
 		input.addEventListener( 'keydown', function ( event ) {
+			if ( event.isComposing || 229 === event.keyCode ) {
+				return;
+			}
+
 			if ( 'Enter' === event.key ) {
 				// Never let Enter reach the order form: it would save the whole order.
 				event.preventDefault();
@@ -608,15 +663,18 @@
 			busy = false;
 
 			if ( response.success ) {
-				pendingFocus = after;
+				// Focus goes where it was asked to go, or stays where the user has moved to since.
+				pendingFocus = after || focusPlace();
 				showNotice( savedText( response.data ) );
 				draw( response.data );
 				emit( 'saved', { action: 'update_item', itemId: edit.itemId, field: edit.field, response: response.data } );
+				releaseSubmit( true );
 				return;
 			}
 
 			const error = response.data || {};
 
+			releaseSubmit( false );
 			showNotice(
 				error.message || __( 'That did not save. Try again.', 'inline-order-editor-for-woocommerce' ),
 				'error'
@@ -638,6 +696,24 @@
 			edit.input.focus();
 			edit.input.select();
 		} );
+	}
+
+	// The order form was submitted while a change was still being saved. It goes ahead once the change
+	// is in, so the form posts what was saved. If the change failed, the form stays put.
+	function releaseSubmit( saved ) {
+		const held = pendingSubmit;
+
+		pendingSubmit = null;
+
+		if ( ! held || ! saved ) {
+			return;
+		}
+
+		if ( held.form.requestSubmit ) {
+			held.form.requestSubmit( held.submitter && held.form.contains( held.submitter ) ? held.submitter : undefined );
+		} else {
+			held.form.submit();
+		}
 	}
 
 	/* ---------- The new row ---------- */
@@ -1060,6 +1136,7 @@
 
 	function addFailed( error, fallback ) {
 		setAddBusy( false );
+		releaseSubmit( false );
 		showNotice( ( error && ( error.message || error.error ) ) || fallback, 'error' );
 
 		if ( error && error.html ) {
@@ -1075,6 +1152,7 @@
 		showNotice( savedText( response.data ) );
 		draw( response.data );
 		emit( 'saved', { action: action, response: response.data } );
+		releaseSubmit( true );
 	}
 
 	// A catalogue product is added by WooCommerce's own request, so stock and other extensions behave
@@ -1107,6 +1185,7 @@
 
 				// The product is on the order. Show it, and say the totals still need a recalculation.
 				setAddBusy( false );
+				releaseSubmit( false );
 				resetDraft();
 				showNotice( ( settled.data && settled.data.message ) || fallback, 'error' );
 				draw( response.data );
@@ -1115,7 +1194,7 @@
 	}
 
 	function submitAdd() {
-		if ( busy || ! state || ! state.editable ) {
+		if ( busy || ! state || ! state.editable || refuseWhileCoreEdits() ) {
 			return;
 		}
 
@@ -1173,8 +1252,9 @@
 			event.preventDefault();
 			startEdit( this );
 		} )
-		.on( 'click', CORE.box + ' .ioefw-cell', function () {
-			if ( 'touch' === lastPointer || 'pen' === lastPointer ) {
+		.on( 'click', CORE.box + ' .ioefw-cell', function ( event ) {
+			// A tap, or a click made for the user by a screen reader or voice control, which has no pointer.
+			if ( 'touch' === lastPointer || 'pen' === lastPointer || 0 === event.detail ) {
 				startEdit( this );
 			}
 		} )
@@ -1217,6 +1297,10 @@
 			const isName = this.classList.contains( 'ioefw-add__name' );
 			const open = isName && options.length > 0;
 
+			if ( event.isComposing || 229 === event.keyCode ) {
+				return;
+			}
+
 			if ( 'Enter' === event.key ) {
 				// Never let Enter reach the order form: it would save the whole order.
 				event.preventDefault();
@@ -1243,13 +1327,13 @@
 				closeSuggestions();
 			}
 		} )
-		.on( 'keydown', CORE.box + ' .ioefw-add__row input, ' + CORE.box + ' .ioefw-add__row select, ' + CORE.box + ' .ioefw-add__button', function ( event ) {
+		.on( 'keydown', CORE.box + ' .ioefw-add__row input, ' + CORE.box + ' .ioefw-add__row select, ' + CORE.box + ' .ioefw-add__row button', function ( event ) {
 			if ( 'Tab' !== event.key ) {
 				return;
 			}
 
 			// Name, price, quantity come first, as they are said on the phone. The optional note and tax follow.
-			const order = [ 'name', 'price', 'quantity', 'note', 'tax', 'button' ].map( addField ).filter( function ( field ) {
+			const order = [ 'name', 'clear', 'price', 'quantity', 'note', 'tax', 'button' ].map( addField ).filter( function ( field ) {
 				return field && ! field.disabled && null !== field.offsetParent;
 			} );
 			const next = order[ order.indexOf( this ) + ( event.shiftKey ? -1 : 1 ) ];
@@ -1298,6 +1382,21 @@
 		.on( 'change', CORE.status, draftWarning )
 
 		.on( 'submit', CORE.form, function ( event ) {
+			// A value still open, or a save still in flight: finish that first, then let the form go.
+			// Otherwise the form would post the old value over the new one.
+			if ( editing && ! editing.closing ) {
+				commit( {} );
+			}
+
+			if ( busy ) {
+				event.preventDefault();
+				pendingSubmit = {
+					form: this,
+					submitter: event.originalEvent ? event.originalEvent.submitter : null,
+				};
+				return;
+			}
+
 			if (
 				'' !== draft.name.trim() &&
 				! window.confirm(
