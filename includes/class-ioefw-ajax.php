@@ -254,11 +254,12 @@ final class IOEFW_Ajax {
 	 * The Items box and the notes list, drawn by WooCommerce's own templates.
 	 *
 	 * When a template is missing the HTML is left out, and the script asks WooCommerce to reload the box.
+	 * Public so an add-on's own request can answer in the same shape, for window.ioefw.draw().
 	 *
 	 * @param WC_Order $order The order.
 	 * @return array
 	 */
-	private static function fragments( WC_Order $order ) {
+	public static function fragments( WC_Order $order ) {
 		$views     = WC()->plugin_path() . '/includes/admin/meta-boxes/views/';
 		$fragments = array();
 

@@ -72,6 +72,15 @@ final class IOEFW_Terms {
 				<span aria-hidden="true">|</span>
 			<?php endif; ?>
 			<a href="<?php echo esc_url( IOEFW_Settings::url() ); ?>"><?php esc_html_e( 'Set the default terms', 'inline-order-editor-for-woocommerce' ); ?></a>
+			<?php
+			/**
+			 * Fires at the end of the links under the Order terms box. The text area is #ioefw-order-terms-text.
+			 *
+			 * @since 1.0.0
+			 * @param WC_Order $order The order being edited.
+			 */
+			do_action( 'ioefw_terms_box_actions', $order );
+			?>
 		</p>
 		<?php
 	}

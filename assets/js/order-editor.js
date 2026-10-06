@@ -1473,11 +1473,15 @@
 		mount();
 	} );
 
-	// For add-ons: read the order as last drawn, or set the screen up again after changing it.
+	// For add-ons: read the order as last drawn, draw the answer to their own request, say what happened,
+	// or ask WooCommerce to reload the box.
 	window.ioefw = {
 		getState: function () {
 			return state;
 		},
+		draw: draw,
+		notice: showNotice,
+		taxAddress: taxAddress,
 		refresh: function () {
 			$( CORE.box ).trigger( CORE.reload );
 		},

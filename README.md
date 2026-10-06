@@ -72,10 +72,11 @@ A panel of reviewers argued the feature list before any code was written. These 
 | `ioefw_item_updated` | A line was changed. Receives the line ID, the order, and the values before and after. |
 | `ioefw_after_recalculate` | The plugin recalculated an order's taxes and totals. |
 | `ioefw_terms_saved` | An order's terms were saved or removed. |
+| `ioefw_terms_box_actions` | The links under the Order terms box are being printed. Receives the order. |
 
 `ioefw_get_order_terms( $order )` returns an order's terms as plain text, for a PDF or email template. `IOEFW_Orders::add_custom_item()`, `add_delivery()` and `update_item()` do the same work the screen does, for code that wants to call them.
 
-In the browser, `ioefw:mounted` and `ioefw:saved` fire on `document`, and `window.ioefw.getState()` returns the order as the server last drew it.
+In the browser, `ioefw:mounted` and `ioefw:saved` fire on `document`, and `window.ioefw.getState()` returns the order as the server last drew it. An add-on's own request can answer with `IOEFW_Ajax::fragments( $order )` and hand that to `window.ioefw.draw()`, then say what happened with `window.ioefw.notice()`.
 
 ## Requirements
 

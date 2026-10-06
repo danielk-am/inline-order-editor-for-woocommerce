@@ -71,7 +71,7 @@ Draft is a status WooCommerce uses for unfinished checkouts, and it deletes Draf
 * A line that was typed in is a normal product line item with no product ID, marked with the hidden item meta `_ioefw_custom`.
 * Existing lines are saved through WooCommerce's own `wc_save_order_items()`, so the hooks that fire for the order screen's Save button fire here too.
 * Filters: `ioefw_can_edit_order`, `ioefw_editable_fields`, `ioefw_custom_item_args`, `ioefw_amounts_include_tax`, `ioefw_order_terms`, `ioefw_show_terms_in_email`, `ioefw_pdf_document_types`, `ioefw_product_search_limit`.
-* Actions: `ioefw_loaded`, `ioefw_custom_item_added`, `ioefw_delivery_added`, `ioefw_item_updated`, `ioefw_after_recalculate`, `ioefw_terms_saved`.
+* Actions: `ioefw_loaded`, `ioefw_custom_item_added`, `ioefw_delivery_added`, `ioefw_item_updated`, `ioefw_after_recalculate`, `ioefw_terms_saved`, `ioefw_terms_box_actions`.
 * The plugin makes no requests to other sites and stores no personal data of its own.
 
 The source and tests are on [GitHub](https://github.com/danielk-am/inline-order-editor-for-woocommerce).
