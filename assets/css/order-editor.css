@@ -267,22 +267,32 @@
 	font-size: 12px;
 }
 
-/* The line under the table: a tip, or what the last change did. Its height is fixed. */
-#woocommerce-order-items .ioefw-status {
-	border-top: 1px solid #f0f0f1;
-	color: var(--ioefw-muted);
-	font-size: 12px;
-	line-height: 18px;
-	min-height: 18px;
-	padding: 8px 12px;
+/* The stand-in toast, for screens where WooCommerce's own is not on the page. It follows the look of
+   the WordPress snackbar. */
+.ioefw-toast {
+	background: #1e1e1e;
+	border-radius: 4px;
+	bottom: 24px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+	box-sizing: border-box;
+	color: #fff;
+	cursor: pointer;
+	font-size: 13px;
+	left: 50%;
+	line-height: 1.4;
+	max-width: min(600px, calc(100vw - 32px));
+	padding: 12px 20px;
+	position: fixed;
+	transform: translateX(-50%);
+	z-index: 100000;
 }
 
-#woocommerce-order-items .ioefw-status--saved {
-	color: var(--ioefw-saved);
+.ioefw-toast[hidden] {
+	display: none;
 }
 
-#woocommerce-order-items .ioefw-status--error {
-	color: var(--ioefw-error);
+.ioefw-toast--error {
+	box-shadow: inset 4px 0 0 #f86368, 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 /* The warning under the Status field when Draft is chosen. */

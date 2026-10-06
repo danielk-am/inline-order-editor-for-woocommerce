@@ -2,8 +2,8 @@
 /**
  * Plugin Name: Inline Order Editor for WooCommerce
  * Plugin URI: https://github.com/danielk-am/inline-order-editor-for-woocommerce
- * Description: Take phone orders on the WooCommerce order screen. Add any item as a new row, double-click a line to change it, and add terms that reach the customer's email.
- * Version: 1.0.0
+ * Description: Take phone orders on the WooCommerce order screen. Type a name in the empty row to add any item. Double-click a price, quantity or total to change it: Enter saves, Esc cancels. Add terms that reach the customer's email.
+ * Version: 1.0.1
  * Requires at least: 6.8
  * Requires PHP: 7.4
  * Requires Plugins: woocommerce
@@ -20,7 +20,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'IOEFW_VERSION', '1.0.0' );
+define( 'IOEFW_VERSION', '1.0.1' );
 define( 'IOEFW_PLUGIN_FILE', __FILE__ );
 
 add_action(

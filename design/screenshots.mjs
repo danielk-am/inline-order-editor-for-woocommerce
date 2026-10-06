@@ -200,11 +200,22 @@ async function capture( number ) {
 	console.log( `screenshot-${ number }.png` );
 }
 
-const saved = () =>
-	waitFor( 'the change to be saved', () => {
-		const line = document.querySelector( '.ioefw-status--saved' );
-		return !! line && ! document.querySelector( '.ioefw-input, .ioefw-add__row--saving' );
+// The plugin fires ioefw:saved on the document after each save. Count them, to know when one is in.
+const countSaves = () =>
+	inPage( () => {
+		if ( undefined === window.ioefwSaves ) {
+			window.ioefwSaves = 0;
+			document.addEventListener( 'ioefw:saved', () => window.ioefwSaves++ );
+		}
+		return window.ioefwSaves;
 	} );
+
+const saved = ( before ) =>
+	waitFor(
+		'the change to be saved',
+		( count ) => window.ioefwSaves > count && ! document.querySelector( '.ioefw-input, .ioefw-add__row--saving' ),
+		before
+	);
 
 const ITEMS = '#woocommerce-order-items';
 const NAME = `${ ITEMS } .ioefw-add__name`;
@@ -252,8 +263,9 @@ try {
 	await type( '3' );
 	await frame( ITEMS );
 	await capture( 2 );
+	let saves = await countSaves();
 	await press( 'Enter' );
-	await saved();
+	await saved( saves );
 
 	// 3. A typed item and a delivery charge, added from the empty row.
 	await click( NAME );
@@ -262,20 +274,25 @@ try {
 	await type( '12.50' );
 	await press( 'Tab' );
 	await type( '2' );
+	saves = await countSaves();
 	await press( 'Enter' );
+	await saved( saves );
 	await waitFor( 'the typed item', () => /Glass vase rental/.test( document.querySelector( '#order_line_items' ).innerText ) );
-	await saved();
 
 	await click( NAME );
 	await type( 'Courier' );
 	await waitFor( 'the suggestions', () => document.querySelectorAll( '.ioefw-suggestions__option' ).length >= 2 );
 	await inPage( () => document.querySelector( '.ioefw-suggestions__option--delivery' ).click() );
 	await type( '8' );
+	saves = await countSaves();
 	await press( 'Enter' );
+	await saved( saves );
 	await waitFor( 'the delivery charge', () => !! document.querySelector( '#order_shipping_line_items tr.shipping' ) );
-	await saved();
 	await inPage( () => document.activeElement.blur() );
 	await frame( ITEMS );
+	// The toast that says what the change did to the total, once it has slid in.
+	await waitFor( 'the saved message', () => /Saved\./.test( ( document.querySelector( '.components-snackbar, .ioefw-toast' ) || {} ).textContent || '' ) );
+	await sleep( 700 );
 	await capture( 3 );
 
 	// 4. The Order terms box.

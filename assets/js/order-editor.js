@@ -21,7 +21,6 @@
 		box: '#woocommerce-order-items',
 		inside: '#woocommerce-order-items .inside',
 		table: 'table.woocommerce_order_items',
-		wrapper: '.woocommerce_order_items_wrapper',
 		lineItems: '#order_line_items',
 		feeItems: '#order_fee_line_items',
 		shippingItems: '#order_shipping_line_items',
@@ -29,6 +28,7 @@
 		notes: 'ul.order_notes',
 		status: '#order_status',
 		form: 'form#order, form#post',
+		toasts: '.woocommerce-transient-notices',
 		reloaded: 'wc_order_items_reloaded',
 		reload: 'wc_order_items_reload',
 		draftStatus: 'wc-checkout-draft',
@@ -41,8 +41,7 @@
 	let busy = false; // One request at a time.
 	let editing = null; // The cell being changed.
 	let pendingFocus = null; // Where focus goes once the box is redrawn.
-	let notice = null; // The message in the status line.
-	let noticeTimer = null;
+	let toastTimer = null;
 	let submitting = false; // The order form itself is being saved.
 	let pendingSubmit = null; // The order form, held back until a save in flight has answered.
 	let lastPointer = 'mouse';
@@ -188,60 +187,47 @@
 		document.dispatchEvent( new window.CustomEvent( 'ioefw:' + name, { detail: detail || {} } ) );
 	}
 
-	/* ---------- Status line ---------- */
+	/* ---------- Messages ---------- */
 
-	function hint() {
-		const parts = [];
+	// A message is a toast. WooCommerce's admin screens already show WordPress notices of the
+	// snackbar kind, bottom left, and read them out. Where that is not on the page, a small toast
+	// of our own stands in. A new message takes the place of the last one.
+	function showNotice( text, type ) {
+		const isError = 'error' === type;
+		const notices = wp.data && wp.data.dispatch ? wp.data.dispatch( 'core/notices' ) : null;
 
-		if ( state.isNew && hasItems() ) {
-			parts.push( __( 'Not saved yet. Click Create to keep this order.', 'inline-order-editor-for-woocommerce' ) );
-		}
-
-		parts.push(
-			hasItems()
-				? __(
-						'Double-click a price, quantity or total to change it. Enter saves, Esc cancels.',
-						'inline-order-editor-for-woocommerce'
-				  )
-				: __(
-						'Type a name in the row above to add the first item. Enter adds it.',
-						'inline-order-editor-for-woocommerce'
-				  )
-		);
-
-		if ( state.inclusive ) {
-			parts.push( __( 'Amounts you type include tax.', 'inline-order-editor-for-woocommerce' ) );
-		}
-
-		return parts.join( ' ' );
-	}
-
-	function drawStatus() {
-		const line = document.querySelector( CORE.box + ' .ioefw-status' );
-
-		if ( ! line ) {
+		if ( notices && notices.createNotice && document.querySelector( CORE.toasts ) ) {
+			notices.createNotice( isError ? 'error' : 'success', text, {
+				type: 'snackbar',
+				id: 'ioefw-toast',
+				// Something went wrong: the message stays until it is closed or replaced.
+				explicitDismiss: isError,
+			} );
 			return;
 		}
 
-		line.textContent = '';
-		line.classList.toggle( 'ioefw-status--error', !! notice && 'error' === notice.type );
-		line.classList.toggle( 'ioefw-status--saved', !! notice && 'error' !== notice.type );
-		line.appendChild( document.createTextNode( notice ? notice.text : hint() ) );
-	}
+		let toast = document.querySelector( '.ioefw-toast' );
 
-	function showNotice( text, type ) {
-		notice = { text: text, type: type || 'saved' };
-		window.clearTimeout( noticeTimer );
+		if ( ! toast ) {
+			toast = element( 'div', 'ioefw-toast', { role: 'status' } );
+			toast.addEventListener( 'click', function () {
+				toast.hidden = true;
+			} );
+			document.body.appendChild( toast );
+		}
 
-		if ( 'error' !== notice.type ) {
-			noticeTimer = window.setTimeout( function () {
-				notice = null;
-				drawStatus();
+		window.clearTimeout( toastTimer );
+		toast.textContent = text;
+		toast.classList.toggle( 'ioefw-toast--error', isError );
+		toast.hidden = false;
+
+		if ( ! isError ) {
+			toastTimer = window.setTimeout( function () {
+				toast.hidden = true;
 			}, 8000 );
 		}
 
-		drawStatus();
-		speak( text, 'error' === notice.type ? 'assertive' : 'polite' );
+		speak( text, isError ? 'assertive' : 'polite' );
 	}
 
 	function savedText( data ) {
@@ -255,6 +241,15 @@
 		}
 
 		return __( 'Saved.', 'inline-order-editor-for-woocommerce' );
+	}
+
+	// On an order that does not exist yet, a saved line is only kept once the order is created.
+	function savedNotice( data ) {
+		const text = savedText( data );
+
+		return state && state.isNew
+			? text + ' ' + __( 'Click Create to keep this order.', 'inline-order-editor-for-woocommerce' )
+			: text;
 	}
 
 	/* ---------- Drawing ---------- */
@@ -344,7 +339,12 @@
 				cell.setAttribute( 'tabindex', '0' );
 				cell.setAttribute( 'role', 'button' );
 				cell.setAttribute( 'aria-label', cellLabel( field, item ) );
-				cell.setAttribute( 'title', __( 'Double-click to change', 'inline-order-editor-for-woocommerce' ) );
+				cell.setAttribute(
+					'title',
+					state.inclusive && ( 'price' === field || 'total' === field )
+						? __( 'Double-click to change. Includes tax.', 'inline-order-editor-for-woocommerce' )
+						: __( 'Double-click to change', 'inline-order-editor-for-woocommerce' )
+				);
 				cell.closest( 'td' ).classList.add( 'ioefw-host' );
 			} );
 		} );
@@ -368,14 +368,6 @@
 
 		markCells( table );
 		buildAddRow( table );
-
-		const wrapper = table.closest( CORE.wrapper ) || table;
-		const line = document.createElement( 'div' );
-
-		line.className = 'ioefw-status';
-		line.setAttribute( 'role', 'status' );
-		wrapper.insertAdjacentElement( 'afterend', line );
-		drawStatus();
 		restoreFocus();
 		emit( 'mounted', { state: state } );
 	}
@@ -665,7 +657,7 @@
 			if ( response.success ) {
 				// Focus goes where it was asked to go, or stays where the user has moved to since.
 				pendingFocus = after || focusPlace();
-				showNotice( savedText( response.data ) );
+				showNotice( savedNotice( response.data ) );
 				draw( response.data );
 				emit( 'saved', { action: 'update_item', itemId: edit.itemId, field: edit.field, response: response.data } );
 				releaseSubmit( true );
@@ -816,6 +808,10 @@
 		const plus = element( 'span', 'ioefw-add__plus', { 'aria-hidden': 'true' } );
 		const button = element( 'button', 'button ioefw-add__button', { type: 'button' } );
 
+		const priceLabel = state.inclusive
+			? __( 'Price each, including tax', 'inline-order-editor-for-woocommerce' )
+			: __( 'Price each', 'inline-order-editor-for-woocommerce' );
+
 		plus.textContent = '+';
 		button.textContent = __( 'Add', 'inline-order-editor-for-woocommerce' );
 
@@ -834,7 +830,8 @@
 							type: 'text',
 							inputmode: 'decimal',
 							autocomplete: 'off',
-							'aria-label': __( 'Price each', 'inline-order-editor-for-woocommerce' ),
+							'aria-label': priceLabel,
+							title: priceLabel,
 							placeholder: formatNumber( 0 ),
 						} )
 					)
@@ -1149,7 +1146,7 @@
 		setAddBusy( false );
 		resetDraft();
 		pendingFocus = { type: 'add' };
-		showNotice( savedText( response.data ) );
+		showNotice( savedNotice( response.data ) );
 		draw( response.data );
 		emit( 'saved', { action: action, response: response.data } );
 		releaseSubmit( true );

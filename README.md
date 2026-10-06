@@ -16,7 +16,7 @@ It is for shops that take orders by phone, over the counter or by message, and t
 
 **Order terms.** A box on each order for payment, delivery or return terms, filled in from a default you set once. The customer sees them in order emails and on their order page, and they print on invoices made by PDF Invoices & Packing Slips for WooCommerce.
 
-After every change the order's taxes and totals are calculated again, and a line under the items says what happened: "Saved. The order total is now $65.00. It was $50.00." Each change also leaves a private order note with the old and the new value.
+After every change the order's taxes and totals are calculated again, and a toast at the bottom of the screen says what happened: "Saved. The order total is now $65.00. It was $50.00." Each change also leaves a private order note with the old and the new value.
 
 The plugin also warns you when you pick the Draft status. WooCommerce deletes Draft orders by itself about a day after their last change, which catches out shops that park unfinished orders there.
 
@@ -30,6 +30,7 @@ The plugin also warns you when you pick the Draft status. WooCommerce deletes Dr
 - **Each request carries a fingerprint of the order's lines.** If the order changed somewhere else in the meantime, nothing is saved and the screen is brought up to date.
 - **Update waits for a save in flight.** Clicking Update while a value is still open saves that value first, then submits the form.
 - **Terms are a copy on the order**, in the meta key `_ioefw_order_terms`. Changing the default later does not rewrite earlier orders.
+- **Messages are toasts.** They go through the WordPress notices store as snackbars, which WooCommerce's admin screens already draw and read out. Where that is not on the page, the script shows a small toast of its own.
 
 There is no build step. The screen is one script and one stylesheet, loaded only where a single order is edited.
 
@@ -80,7 +81,7 @@ In the browser, `ioefw:mounted` and `ioefw:saved` fire on `document`, and `windo
 
 ## Requirements
 
-WordPress 6.8 or later, WooCommerce 10.0 or later, PHP 7.4 or later. Version 1.0.0 was tested on WordPress 7.1.2 with WooCommerce 11.1.2 and PHP 8.5, and on WordPress 6.8.10 with WooCommerce 10.0.6 and PHP 7.4. Both ran with HPOS, and the newer stack also ran with post-based order storage.
+WordPress 6.8 or later, WooCommerce 10.0 or later, PHP 7.4 or later. Version 1.0.1 was tested on WordPress 7.1.2 with WooCommerce 11.1.2 and PHP 8.5, and on WordPress 6.8.10 with WooCommerce 10.0.6 and PHP 7.4. Both ran with HPOS, and the newer stack also ran with post-based order storage.
 
 ## Install
 

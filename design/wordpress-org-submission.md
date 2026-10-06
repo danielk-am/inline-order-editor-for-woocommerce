@@ -10,7 +10,7 @@ Not submitted yet. The upload page offers no new submission form while an earlie
 
 ## What to upload
 
-Build it with `bin/build.sh --zip`. The file is `build/inline-order-editor-for-woocommerce.zip`. The same file is attached to the v1.0.0 release on GitHub, with its checksum (sha256 `b7d74083b6273fb2ef4ef118aa3261872ea9c3d1d91be3e6dc158a3e19f54061`) and the Plugin Check result for that exact file.
+Build it with `bin/build.sh --zip`. The file is `build/inline-order-editor-for-woocommerce.zip`. The same file is attached to the v1.0.1 release on GitHub, with its checksum (sha256 `beddc32d212aaec891ffebc5c73d0c3c1104c213c327c792d7df11cc3eeb7f9f`) and the Plugin Check result for that exact file.
 
 The repository has been public since 6 October 2026, so the links in the plugin's header and readme resolve.
 

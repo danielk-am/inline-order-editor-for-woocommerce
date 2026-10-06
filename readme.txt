@@ -5,7 +5,7 @@ Tags: woocommerce, phone orders, manual orders, edit order, order items
 Requires at least: 6.8
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,7 +37,7 @@ On a keyboard, move to a value with Tab and press Enter. On a touch screen, tap 
 
 = Totals that are already right =
 
-After every change the order's taxes and totals are calculated again, the way the Recalculate button does it, and a line under the items tells you what happened: "Saved. The order total is now $65.00. It was $50.00."
+After every change the order's taxes and totals are calculated again, the way the Recalculate button does it, and a short message at the bottom of the screen tells you what happened: "Saved. The order total is now $65.00. It was $50.00."
 
 If your store's prices are entered with tax, the amounts you type are read with tax too. Type 10 and the customer pays 10.
 
@@ -103,7 +103,7 @@ Draft is a status WooCommerce uses for checkouts that were started and not finis
 
 = Do my prices include tax when I type them? =
 
-They follow your store. If WooCommerce > Settings > Tax says prices are entered inclusive of tax, the amounts you type on an order include tax, and the line under the items says so. If it says exclusive, tax is added on top.
+They follow your store. If WooCommerce > Settings > Tax says prices are entered inclusive of tax, the amounts you type on an order include tax, and the price field says so when you point at it. If it says exclusive, tax is added on top.
 
 = Does a coupon apply to an item I typed in? =
 
@@ -133,16 +133,23 @@ The order screen goes back to how WooCommerce ships it. Lines you added stay on 
 
 1. Type a name in the empty row. Products from your catalogue are suggested, and anything else can be added as a new item or a delivery charge.
 2. Double-click a quantity, a price or a total to change it where it stands.
-3. An order with a catalogue product, a typed item and a delivery charge. The line under the items says what the last change did to the total.
+3. An order with a catalogue product, a typed item and a delivery charge. The message at the bottom left says what the last change did to the total.
 4. The Order terms box on the order, filled in from your default terms.
 5. The terms in the customer's order email.
 
 == Changelog ==
 
+= 1.0.1 =
+* Saved messages and errors now show as toast notifications at the bottom of the screen.
+* The tip line under the order's items is gone. How to change a line is in the plugin's description.
+
 = 1.0.0 =
 * First release.
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+Saved messages and errors now show as toast notifications.
 
 = 1.0.0 =
 First release.
