@@ -1,0 +1,52 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"landingPage": "/wp-admin/admin.php?page=wc-orders",
+	"login": true,
+	"constants": {
+		"WP_DEBUG": true,
+		"WP_DEBUG_LOG": true,
+		"WP_DEBUG_DISPLAY": false,
+		"SCRIPT_DEBUG": true
+	},
+	"steps": [
+		{
+			"step": "installPlugin",
+			"pluginData": {
+				"resource": "wordpress.org/plugins",
+				"slug": "woocommerce"
+			},
+			"options": {
+				"activate": true
+			}
+		},
+		{
+			"step": "installPlugin",
+			"pluginData": {
+				"resource": "wordpress.org/plugins",
+				"slug": "plugin-check"
+			},
+			"options": {
+				"activate": true
+			}
+		},
+		{
+			"step": "installPlugin",
+			"pluginData": {
+				"resource": "wordpress.org/plugins",
+				"slug": "woocommerce-pdf-invoices-packing-slips"
+			},
+			"options": {
+				"activate": true
+			}
+		},
+		{
+			"step": "activatePlugin",
+			"pluginPath": "inline-order-editor-for-woocommerce/inline-order-editor-for-woocommerce.php"
+		},
+		{
+			"step": "writeFile",
+			"path": "/wordpress/wp-content/mu-plugins/ioefw-dev.php",
+			"data": "<?php\n// Test store only. Skips the WooCommerce setup wizard, keeps every email inside the store, and lets a\n// logged-in admin run the scripts in the plugin's tests folder: /wp-admin/admin-post.php?action=ioefw_dev&script=run\nadd_filter( 'woocommerce_enable_setup_wizard', '__return_false' );\nadd_filter( 'woocommerce_prevent_automatic_wizard_redirect', '__return_true' );\nadd_filter(\n\t'pre_wp_mail',\n\tfunction ( $sent, $mail ) {\n\t\t$log   = (array) get_option( 'ioefw_test_mail', array() );\n\t\t$log[] = array(\n\t\t\t'to'      => $mail['to'],\n\t\t\t'subject' => $mail['subject'],\n\t\t\t'message' => $mail['message'],\n\t\t);\n\t\tupdate_option( 'ioefw_test_mail', array_slice( $log, -20 ), false );\n\t\treturn true;\n\t},\n\t10,\n\t2\n);\nadd_action(\n\t'admin_post_ioefw_dev',\n\tfunction () {\n\t\t$script = isset( $_GET['script'] ) ? sanitize_key( wp_unslash( $_GET['script'] ) ) : '';\n\t\t$file   = WP_CONTENT_DIR . '/ioefw-tests/' . $script . '.php';\n\t\tif ( ! current_user_can( 'manage_options' ) || ! in_array( $script, array( 'seed', 'run', 'storage', 'email' ), true ) || ! is_readable( $file ) ) {\n\t\t\twp_die( 'Forbidden' );\n\t\t}\n\t\tif ( 'email' !== $script ) {\n\t\t\theader( 'Content-Type: text/plain; charset=utf-8' );\n\t\t}\n\t\trequire $file;\n\t\texit;\n\t}\n);\n"
+		}
+	]
+}

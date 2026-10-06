@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Inline Order Editor for WooCommerce: directory icon</title>
+<!--
+	Renders .wordpress-org/icon.svg to PNG. Open with ?size=256 or ?size=128 and capture at that size.
+-->
+<style>
+	html, body { margin: 0; background: transparent; }
+	img { display: block; }
+</style>
+</head>
+<body>
+	<img id="icon" src="../.wordpress-org/icon.svg" alt="">
+	<script>
+		const size = Number( new URLSearchParams( location.search ).get( 'size' ) ) || 256;
+		const icon = document.getElementById( 'icon' );
+		icon.width = size;
+		icon.height = size;
+	</script>
+</body>
+</html>
