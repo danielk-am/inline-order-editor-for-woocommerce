@@ -63,7 +63,7 @@ Draft is a status WooCommerce uses for unfinished checkouts, and it deletes Draf
 * On an order with a coupon, change a line's price or quantity and its total follows the coupon. Each change applies the order's coupons again, which replaces a discount typed by hand on any line.
 * An item you typed in has no stock, SKU or weight. Analytics > Products has no product to list it under, so typed items appear there together in one row, marked "(Deleted)".
 * Changing a line recalculates the order's taxes. A tax amount you typed by hand with the pencil is replaced by the calculated one.
-* Tested on WordPress 7.1.2 with WooCommerce 11.1.2 and High-Performance Order Storage. Not tested with subscriptions, bookings, product bundles or tax services such as WooCommerce Tax and Avalara.
+* Tested on WordPress 7.1.2 with WooCommerce 11.1.2 and PHP 8.5, and on WordPress 6.8.10 with WooCommerce 10.0.6 and PHP 7.4, with High-Performance Order Storage. Not tested on a real phone or tablet, or with subscriptions, bookings, product bundles or tax services such as WooCommerce Tax and Avalara.
 
 = For developers =
 
@@ -95,7 +95,7 @@ Yes. Double-click the price and type the new one. The standard order screen only
 
 = Why can I not change a paid order? =
 
-WooCommerce only allows changes to orders that are Pending payment or On hold, because the amount has usually been charged once an order is Processing or Completed. This plugin follows that rule. If you need to change a paid order, set its status back to Pending payment, make the change, and settle any difference with the customer yourself.
+WooCommerce only allows changes to orders that are Pending payment or On hold. This plugin follows that rule, because a paid order's amount has usually been charged already. If you need to change a paid order, set its status back to Pending payment, make the change, and settle any difference with the customer yourself.
 
 = I saved an order as Draft and it disappeared. Why? =
 
@@ -119,7 +119,7 @@ Yes. They are stored on the order under the meta key `_ioefw_order_terms`, and `
 
 = Does it work with High-Performance Order Storage? =
 
-Yes. It was built and tested with HPOS switched on, and it uses WooCommerce's order functions throughout, so the older post-based order storage is supported by the same code.
+Yes. It was built and tested with HPOS switched on. On WordPress 7.1.2 with WooCommerce 11.1.2, the same checks also pass with the older post-based order storage.
 
 = Does it work on a phone or tablet? =
 

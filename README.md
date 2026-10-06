@@ -28,6 +28,7 @@ The plugin also warns you when you pick the Draft status. WooCommerce deletes Dr
 - **Taxes and totals follow the Recalculate button**: `calculate_taxes()` for the address in the form, then `calculate_totals()`. If the store's prices are entered with tax, typed amounts are read with tax and converted with the rates WooCommerce found for the line.
 - **The Items box is redrawn from the server after every save**, with WooCommerce's own template. The fields WooCommerce posts when you click Update therefore always match what was saved.
 - **Each request carries a fingerprint of the order's lines.** If the order changed somewhere else in the meantime, nothing is saved and the screen is brought up to date.
+- **Update waits for a save in flight.** Clicking Update while a value is still open saves that value first, then submits the form.
 - **Terms are a copy on the order**, in the meta key `_ioefw_order_terms`. Changing the default later does not rewrite earlier orders.
 
 There is no build step. The screen is one script and one stylesheet, loaded only where a single order is edited.
@@ -38,7 +39,8 @@ There is no build step. The screen is one script and one stylesheet, loaded only
 - Percentage and fixed product coupons apply to catalogue products only, so a typed item keeps its price. A fixed cart coupon is shared across every line. This is WooCommerce's rule.
 - A typed item has no stock, SKU or weight. Analytics > Products has no product to list it under, so typed items appear there together in one row, marked "(Deleted)".
 - Changing a line recalculates the order's taxes, so a tax amount typed by hand with the pencil is replaced.
-- Not tested with subscriptions, bookings, product bundles, or tax services such as WooCommerce Tax and Avalara.
+- On an order with a coupon, a line's total follows the coupon, so only its price and quantity are typed. Each change applies the order's coupons again, which replaces a discount typed by hand on any line.
+- Not tested on a real phone or tablet, or with subscriptions, bookings, product bundles, or tax services such as WooCommerce Tax and Avalara.
 
 ## What it leaves out, on purpose
 
@@ -77,7 +79,7 @@ In the browser, `ioefw:mounted` and `ioefw:saved` fire on `document`, and `windo
 
 ## Requirements
 
-WordPress 6.8 or later, WooCommerce 10.0 or later, PHP 7.4 or later. See the readme for the versions each release was tested on.
+WordPress 6.8 or later, WooCommerce 10.0 or later, PHP 7.4 or later. Version 1.0.0 was tested on WordPress 7.1.2 with WooCommerce 11.1.2 and PHP 8.5, and on WordPress 6.8.10 with WooCommerce 10.0.6 and PHP 7.4. Both ran with HPOS, and the newer stack also ran with post-based order storage.
 
 ## Install
 
