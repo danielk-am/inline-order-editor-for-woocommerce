@@ -19,3 +19,16 @@ defined( 'ABSPATH' ) || exit;
 function ioefw_get_order_terms( $order ) {
 	return IOEFW_Terms::get( $order, 'view' );
 }
+
+/**
+ * Trims a value the same way on every PHP version.
+ *
+ * PHP 8.6 adds the form feed to the characters trim() removes by default. Naming them keeps one result everywhere.
+ *
+ * @since 1.0.2
+ * @param mixed $text The value.
+ * @return string
+ */
+function ioefw_trim( $text ) {
+	return trim( (string) $text, " \n\r\t\v\x00" );
+}

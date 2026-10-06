@@ -114,7 +114,7 @@ final class IOEFW_Terms {
 	 * @param string   $terms The terms, as plain text.
 	 */
 	public static function set( WC_Order $order, $terms ) {
-		$terms = trim( sanitize_textarea_field( (string) $terms ) );
+		$terms = ioefw_trim( sanitize_textarea_field( (string) $terms ) );
 
 		if ( (string) $order->get_meta( self::META_KEY ) === $terms ) {
 			return;
@@ -160,7 +160,7 @@ final class IOEFW_Terms {
 		 * @param WC_Order $order   The order.
 		 * @param string   $context email, order_page, pdf or view.
 		 */
-		return trim( (string) apply_filters( 'ioefw_order_terms', (string) $order->get_meta( self::META_KEY ), $order, $context ) );
+		return ioefw_trim( apply_filters( 'ioefw_order_terms', (string) $order->get_meta( self::META_KEY ), $order, $context ) );
 	}
 
 	/**
@@ -169,7 +169,7 @@ final class IOEFW_Terms {
 	 * @return string
 	 */
 	public static function default_terms() {
-		return trim( sanitize_textarea_field( (string) get_option( 'ioefw_default_terms', '' ) ) );
+		return ioefw_trim( sanitize_textarea_field( (string) get_option( 'ioefw_default_terms', '' ) ) );
 	}
 
 	/**
@@ -178,7 +178,7 @@ final class IOEFW_Terms {
 	 * @return string
 	 */
 	public static function heading() {
-		$heading = trim( (string) get_option( 'ioefw_terms_heading', '' ) );
+		$heading = ioefw_trim( get_option( 'ioefw_terms_heading', '' ) );
 
 		return '' === $heading ? __( 'Terms', 'inline-order-editor-for-woocommerce' ) : $heading;
 	}

@@ -103,7 +103,8 @@ final class IOEFW_Ajax {
 		 * @param int $limit Number of suggestions.
 		 */
 		$limit = max( 1, (int) apply_filters( 'ioefw_product_search_limit', 8 ) );
-		$ids   = WC_Data_Store::load( 'product' )->search_products( $term, '', true, false, $limit * 2 );
+		$store = WC_Data_Store::load( 'product' );
+		$ids   = is_callable( array( $store, 'search_products' ) ) ? (array) $store->search_products( $term, '', true, false, $limit * 2 ) : array();
 
 		foreach ( $ids as $id ) {
 			$product = wc_get_product( $id );

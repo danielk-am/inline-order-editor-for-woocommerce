@@ -10,7 +10,7 @@ Not submitted yet. The upload page offers no new submission form while an earlie
 
 ## What to upload
 
-Build it with `bin/build.sh --zip`. The file is `build/inline-order-editor-for-woocommerce.zip`. The same file is attached to the v1.0.1 release on GitHub, with its checksum (sha256 `beddc32d212aaec891ffebc5c73d0c3c1104c213c327c792d7df11cc3eeb7f9f`) and the Plugin Check result for that exact file.
+Build it with `bin/build.sh --zip`. The file is `build/inline-order-editor-for-woocommerce.zip`. The same file is attached to the v1.0.2 release on GitHub, with its checksum (sha256 `8395d6b36811b932cc3f9c5ce54fe626f56d4299403ccc6ce8a5fafddc8a59b5`) and the Plugin Check result for that exact file.
 
 The repository has been public since 6 October 2026, so the links in the plugin's header and readme resolve.
 
@@ -29,6 +29,15 @@ After approval, the files in `.wordpress-org/` go to the `assets` folder of the 
 | "I have permission to upload this plugin ... using a WordPress.org account that accurately represents the plugin owner." | Yours to confirm. The readme lists the contributor `danielkam1`. |
 | "I confirm that my plugin code does not include artificial limitations to the included functionality." | True of the code: every feature in the plugin works without a licence, a limit or a paid add-on. |
 | The two acknowledgements in step 3. | Yours to tick. |
+
+## Other checks on version 1.0.2, 7 October 2026
+
+WordPress.org asks for Plugin Check only. These were run as well, with open tools, ahead of a WooCommerce.com submission:
+
+- PHPCS `WordPress.Security` and `WordPress.DB`, Semgrep's public PHP, WordPress, JavaScript and secrets packs, and gitleaks on the package and the git history: nothing found.
+- PHPCompatibility for PHP 7.4 and later, and PHPStan at level 2 with WordPress and WooCommerce stubs: nothing found. Version 1.0.1 had five `trim()` calls that PHP 8.6 will treat differently and 19 PHPStan messages. Version 1.0.2 fixes both.
+- `tests/run.php`: 107 checks, 0 failed, on WordPress 7.1.3 with WooCommerce 11.1.2 and PHP 8.5, with HPOS and with post-based order storage. 105 checks, 0 failed, on WordPress 6.8.10 with WooCommerce 10.0.6 and PHP 7.4.33.
+- On each of those three stores: admin pages load, a guest checks out, the plugin is switched off and on again, and the debug log has no PHP notice, warning or error.
 
 ## Name
 

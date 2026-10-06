@@ -81,7 +81,7 @@ In the browser, `ioefw:mounted` and `ioefw:saved` fire on `document`, and `windo
 
 ## Requirements
 
-WordPress 6.8 or later, WooCommerce 10.0 or later, PHP 7.4 or later. Version 1.0.1 was tested on WordPress 7.1.2 with WooCommerce 11.1.2 and PHP 8.5, and on WordPress 6.8.10 with WooCommerce 10.0.6 and PHP 7.4. Both ran with HPOS, and the newer stack also ran with post-based order storage.
+WordPress 6.8 or later, WooCommerce 10.0 or later, PHP 7.4 or later. Version 1.0.2 was tested on WordPress 7.1.3 with WooCommerce 11.1.2 and PHP 8.5, and on WordPress 6.8.10 with WooCommerce 10.0.6 and PHP 7.4. Both ran with HPOS, and the newer stack also ran with post-based order storage.
 
 ## Install
 

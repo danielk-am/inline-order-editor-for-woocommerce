@@ -5,7 +5,7 @@ Tags: woocommerce, phone orders, manual orders, edit order, order items
 Requires at least: 6.8
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -63,7 +63,7 @@ Draft is a status WooCommerce uses for unfinished checkouts, and it deletes Draf
 * On an order with a coupon, change a line's price or quantity and its total follows the coupon. Each change applies the order's coupons again, which replaces a discount typed by hand on any line.
 * An item you typed in has no stock, SKU or weight. Analytics > Products has no product to list it under, so typed items appear there together in one row, marked "(Deleted)".
 * Changing a line recalculates the order's taxes. A tax amount you typed by hand with the pencil is replaced by the calculated one.
-* Tested on WordPress 7.1.2 with WooCommerce 11.1.2 and PHP 8.5, and on WordPress 6.8.10 with WooCommerce 10.0.6 and PHP 7.4, with High-Performance Order Storage. Not tested on a real phone or tablet, or with subscriptions, bookings, product bundles or tax services such as WooCommerce Tax and Avalara.
+* Tested on WordPress 7.1.3 with WooCommerce 11.1.2 and PHP 8.5, and on WordPress 6.8.10 with WooCommerce 10.0.6 and PHP 7.4, with High-Performance Order Storage. Not tested on a real phone or tablet, or with subscriptions, bookings, product bundles or tax services such as WooCommerce Tax and Avalara.
 
 = For developers =
 
@@ -119,7 +119,7 @@ Yes. They are stored on the order under the meta key `_ioefw_order_terms`, and `
 
 = Does it work with High-Performance Order Storage? =
 
-Yes. It was built and tested with HPOS switched on. On WordPress 7.1.2 with WooCommerce 11.1.2, the same checks also pass with the older post-based order storage.
+Yes. It was built and tested with HPOS switched on. On WordPress 7.1.3 with WooCommerce 11.1.2, the same checks also pass with the older post-based order storage.
 
 = Does it work on a phone or tablet? =
 
@@ -139,6 +139,10 @@ The order screen goes back to how WooCommerce ships it. Lines you added stay on 
 
 == Changelog ==
 
+= 1.0.2 =
+* Text is now trimmed the same way on every PHP version, ahead of a change to PHP's defaults in 8.6.
+* A line is now checked by its kind before it is read or changed. The order screen works as before.
+
 = 1.0.1 =
 * Saved messages and errors now show as toast notifications at the bottom of the screen.
 * The tip line under the order's items is gone. How to change a line is in the plugin's description.
@@ -147,6 +151,9 @@ The order screen goes back to how WooCommerce ships it. Lines you added stay on 
 * First release.
 
 == Upgrade Notice ==
+
+= 1.0.2 =
+Small code fixes found by static checks. Nothing changes on the order screen.
 
 = 1.0.1 =
 Saved messages and errors now show as toast notifications.

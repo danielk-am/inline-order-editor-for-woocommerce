@@ -113,7 +113,7 @@ final class IOEFW_Orders {
 				(int) $item_id,
 				(string) $item->get_name(),
 				(string) $item->get_quantity(),
-				wc_format_decimal( $item->get_total() ),
+				is_callable( array( $item, 'get_total' ) ) ? wc_format_decimal( $item->get_total() ) : '',
 				is_callable( array( $item, 'get_subtotal' ) ) ? wc_format_decimal( $item->get_subtotal() ) : '',
 			);
 		}
@@ -340,7 +340,7 @@ final class IOEFW_Orders {
 		$item_id = absint( $item_id );
 		$item    = $item_id ? $order->get_item( $item_id, false ) : false;
 
-		if ( ! $item || ! in_array( $item->get_type(), array( 'line_item', 'fee', 'shipping' ), true ) ) {
+		if ( ! self::is_line( $item ) ) {
 			return new WP_Error( 'ioefw_no_item', __( 'That line is no longer on this order.', 'inline-order-editor-for-woocommerce' ) );
 		}
 
@@ -428,7 +428,7 @@ final class IOEFW_Orders {
 		}
 
 		$item  = $order->get_item( $item_id, false );
-		$after = $item ? self::item_values( $item, $inclusive, $order ) : $before;
+		$after = self::is_line( $item ) ? self::item_values( $item, $inclusive, $order ) : $before;
 
 		self::note( $order, self::change_note( $field, $before, $after, $order ) );
 
@@ -470,8 +470,13 @@ final class IOEFW_Orders {
 		$order->calculate_taxes( $tax_args );
 
 		foreach ( $typed as $item_id => $amounts ) {
-			$item  = $order->get_item( $item_id, false );
-			$rates = $item ? self::rates_on( $item ) : array();
+			$item = $order->get_item( $item_id, false );
+
+			if ( ! self::is_line( $item ) ) {
+				continue;
+			}
+
+			$rates = self::rates_on( $item );
 
 			if ( ! $rates ) {
 				continue;
@@ -494,7 +499,7 @@ final class IOEFW_Orders {
 				}
 			}
 
-			if ( 'fee' === $item->get_type() ) {
+			if ( $item instanceof WC_Order_Item_Fee ) {
 				$item->set_amount( $item->get_total() );
 			}
 
@@ -536,11 +541,25 @@ final class IOEFW_Orders {
 	}
 
 	/**
+	 * Whether a line is one this plugin changes: a product line, a fee or a shipping line.
+	 *
+	 * @param mixed $item The line, or false when the order has none with that ID.
+	 * @return bool
+	 *
+	 * @phpstan-assert-if-true WC_Order_Item_Product|WC_Order_Item_Fee|WC_Order_Item_Shipping $item
+	 */
+	private static function is_line( $item ) {
+		$kinds = $item instanceof WC_Order_Item_Product || $item instanceof WC_Order_Item_Fee || $item instanceof WC_Order_Item_Shipping;
+
+		return $kinds && in_array( $item->get_type(), array( 'line_item', 'fee', 'shipping' ), true );
+	}
+
+	/**
 	 * A line's values as the shopkeeper sees and types them: tax included when the store's prices are.
 	 *
-	 * @param WC_Order_Item $item      The line.
-	 * @param bool          $inclusive Whether amounts include tax.
-	 * @param WC_Order      $order     The order.
+	 * @param WC_Order_Item_Product|WC_Order_Item_Fee|WC_Order_Item_Shipping $item      The line.
+	 * @param bool     $inclusive Whether amounts include tax.
+	 * @param WC_Order $order     The order.
 	 * @return array
 	 */
 	private static function item_values( $item, $inclusive, WC_Order $order ) {
@@ -586,9 +605,9 @@ final class IOEFW_Orders {
 	/**
 	 * Hands a line's new values to WooCommerce's own save, in the shape the order screen posts them.
 	 *
-	 * @param WC_Order      $order   The order.
-	 * @param WC_Order_Item $item    The line.
-	 * @param array         $changes Any of name, quantity, subtotal and total.
+	 * @param WC_Order $order   The order.
+	 * @param WC_Order_Item_Product|WC_Order_Item_Fee|WC_Order_Item_Shipping $item    The line.
+	 * @param array    $changes Any of name, quantity, subtotal and total.
 	 */
 	private static function save_through_core( WC_Order $order, $item, array $changes ) {
 		$id    = $item->get_id();
@@ -627,7 +646,7 @@ final class IOEFW_Orders {
 	/**
 	 * The tax rates WooCommerce applied to a line, in the shape WC_Tax::calc_tax() takes.
 	 *
-	 * @param WC_Order_Item $item The line, after taxes were calculated.
+	 * @param WC_Order_Item_Product|WC_Order_Item_Fee|WC_Order_Item_Shipping $item The line, after taxes were calculated.
 	 * @return array
 	 */
 	private static function rates_on( $item ) {
@@ -712,7 +731,7 @@ final class IOEFW_Orders {
 			return (float) $raw;
 		}
 
-		$raw = is_string( $raw ) ? trim( $raw ) : '';
+		$raw = is_string( $raw ) ? ioefw_trim( $raw ) : '';
 
 		if ( '' === $raw ) {
 			return $empty;
