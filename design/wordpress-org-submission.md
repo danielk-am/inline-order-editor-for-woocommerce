@@ -8,7 +8,9 @@ Rules read on 6 October 2026: the upload form (from its source in WordPress/word
 
 Build it with `bin/build.sh --zip`. The file is `build/inline-order-editor-for-woocommerce.zip`. The same file is attached to the v1.0.0 release on GitHub, with its checksum (sha256 `b7d74083b6273fb2ef4ef118aa3261872ea9c3d1d91be3e6dc158a3e19f54061`) and the Plugin Check result for that exact file.
 
-The repository is private. Make it public before you submit, because the plugin's header and readme link to it.
+The repository has been public since 6 October 2026, so the links in the plugin's header and readme resolve.
+
+WordPress.org takes one new plugin at a time from an account. While an earlier submission is waiting for its first review, or is in review, the upload page shows a notice in place of the form. If it does, this plugin waits until that one is approved.
 
 After approval, the files in `.wordpress-org/` go to the `assets` folder of the plugin's SVN repository: `icon.svg`, `icon-128x128.png`, `icon-256x256.png`, `banner-772x250.png`, `banner-1544x500.png` and `screenshot-1.png` to `screenshot-5.png`.
 
