@@ -35,9 +35,9 @@ After approval, the files in `.wordpress-org/` go to the `assets` folder of the 
 WordPress.org asks for Plugin Check only. These were run as well, with open tools, ahead of a WooCommerce.com submission:
 
 - PHPCS `WordPress.Security` and `WordPress.DB`, Semgrep's public PHP, WordPress, JavaScript and secrets packs, and gitleaks on the package and the git history: nothing found.
-- PHPCompatibility for PHP 7.4 and later, and PHPStan at level 2 with WordPress and WooCommerce stubs: nothing found. Version 1.0.1 had five `trim()` calls that PHP 8.6 will treat differently and 19 PHPStan messages. Version 1.0.2 fixes both.
+- PHPCompatibility for PHP 7.4 and later, and PHPStan at level 2 with WordPress and WooCommerce stubs: nothing found. Version 1.0.1 had five `trim()` calls that PHP 8.6 will treat differently and 19 PHPStan messages. Version 1.0.2 fixes both. The `trim()` calls are reported only when the range checked reaches PHP 8.6, which is not released yet, and the PHPStan messages only from level 2, so 1.0.1 was clean for PHP 7.4 to 8.5 and at level 0.
 - `tests/run.php`: 107 checks, 0 failed, on WordPress 7.1.3 with WooCommerce 11.1.2 and PHP 8.5, with HPOS and with post-based order storage. 105 checks, 0 failed, on WordPress 6.8.10 with WooCommerce 10.0.6 and PHP 7.4.33.
-- On each of those three stores: admin pages load, a guest checks out, the plugin is switched off and on again, and the debug log has no PHP notice, warning or error.
+- An activation run on WordPress 7.1.3 with WooCommerce 11.1.2 and PHP 8.5, and on WordPress 6.8.11 with WooCommerce 10.0.6 and PHP 7.4.33, both with HPOS: admin pages load, a product and an administrator's order are created, a guest adds to cart and checks out with cash on delivery, the plugin is switched off and on again, and the debug log, read from the store's first boot, has no line that a control store without the plugin does not also have. WooCommerce logs a notice and some database errors of its own on these Playground stores.
 
 ## Name
 
