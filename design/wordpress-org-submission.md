@@ -6,7 +6,9 @@ Rules read on 6 October 2026: the upload form (from its source in WordPress/word
 
 ## What to upload
 
-Build it with `bin/build.sh --zip`. The file is `build/inline-order-editor-for-woocommerce.zip`. Its checksum and the Plugin Check result for that exact file are in the release notes on GitHub.
+Build it with `bin/build.sh --zip`. The file is `build/inline-order-editor-for-woocommerce.zip`. The same file is attached to the v1.0.0 release on GitHub, with its checksum (sha256 `b7d74083b6273fb2ef4ef118aa3261872ea9c3d1d91be3e6dc158a3e19f54061`) and the Plugin Check result for that exact file.
+
+The repository is private. Make it public before you submit, because the plugin's header and readme link to it.
 
 After approval, the files in `.wordpress-org/` go to the `assets` folder of the plugin's SVN repository: `icon.svg`, `icon-128x128.png`, `icon-256x256.png`, `banner-772x250.png`, `banner-1544x500.png` and `screenshot-1.png` to `screenshot-5.png`.
 
@@ -16,7 +18,7 @@ After approval, the files in `.wordpress-org/` go to the `assets` folder of the 
 | --- | --- |
 | "I have read the Frequently Asked Questions." | Yours to read and tick. |
 | "I have read and make sure that this plugin complies with all of the Plugins Directory Guidelines." | GPL-2.0-or-later code and assets. No external requests, no tracking, no remote code, no updater, no locked features, no admin notices or upsells. Yours to confirm. |
-| "I confirm that the plugin has been tested with the Plugin Check plugin, and all indicated issues resolved." | Plugin Check 2.1.0, all five categories, on the shipped fileset: no errors, no warnings. 29 checks ran. Five runtime checks did not run in WordPress Playground (`enqueued_scripts_size`, `enqueued_styles_size`, `enqueued_styles_scope`, `enqueued_scripts_scope`, `non_blocking_scripts`). What they test was checked directly: the plugin's script (38 KB) and stylesheet (8 KB) load only on the screen where one order is edited, the script in the footer. |
+| "I confirm that the plugin has been tested with the Plugin Check plugin, and all indicated issues resolved." | Plugin Check 2.1.0, all five categories, on the shipped fileset: no errors, no warnings. 29 checks ran. Five runtime checks did not run in WordPress Playground (`enqueued_scripts_size`, `enqueued_styles_size`, `enqueued_styles_scope`, `enqueued_scripts_scope`, `non_blocking_scripts`). What they test was checked directly: the plugin's script (42 KB) and stylesheet (8 KB) load only on the screen where one order is edited, the script in the footer. |
 | "I have chosen a plugin name that is not confusingly similar to existing plugins, projects, organizations, or trademarks. I searched on the internet for similar names and found nothing similar." | See "Name" below. This one needs your decision. |
 | "I have permission to upload this plugin ... using a WordPress.org account that accurately represents the plugin owner." | Yours to confirm. The readme lists the contributor `danielkam1`. |
 | "I confirm that my plugin code does not include artificial limitations to the included functionality." | True of the code: every feature in the plugin works without a licence, a limit or a paid add-on. |
