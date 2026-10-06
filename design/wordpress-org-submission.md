@@ -4,6 +4,10 @@ Working notes for the upload at https://wordpress.org/plugins/developers/add/. N
 
 Rules read on 6 October 2026: the upload form (from its source in WordPress/wordpress.org, `shortcodes/class-upload.php`), the Detailed Plugin Guidelines, the plugin assets page, and "How your readme.txt works".
 
+## Status on 6 October 2026
+
+Not submitted yet. The upload page offers no new submission form while an earlier plugin from the same account is in review. Once that review is finished, the form comes back and this plugin can go in with the ZIP below.
+
 ## What to upload
 
 Build it with `bin/build.sh --zip`. The file is `build/inline-order-editor-for-woocommerce.zip`. The same file is attached to the v1.0.0 release on GitHub, with its checksum (sha256 `b7d74083b6273fb2ef4ef118aa3261872ea9c3d1d91be3e6dc158a3e19f54061`) and the Plugin Check result for that exact file.
