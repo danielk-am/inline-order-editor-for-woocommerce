@@ -81,7 +81,7 @@ In the browser, `ioefw:mounted` and `ioefw:saved` fire on `document`, and `windo
 
 ## Requirements
 
-WordPress 6.8 or later, WooCommerce 10.0 or later, PHP 7.4 or later. Version 1.0.2 was tested on WordPress 7.1.3 with WooCommerce 11.1.2 and PHP 8.5, and on WordPress 6.8.10 with WooCommerce 10.0.6 and PHP 7.4. Both ran with HPOS, and the newer stack also ran with post-based order storage.
+WordPress 6.8 or later, WooCommerce 10.0 or later, PHP 7.4 or later. Version 1.0.3 has the same code as 1.0.2 and adds a changelog file to the package. Version 1.0.2 was tested on WordPress 7.1.3 with WooCommerce 11.1.2 and PHP 8.5, and on WordPress 6.8.10 with WooCommerce 10.0.6 and PHP 7.4. Both ran with HPOS, and the newer stack also ran with post-based order storage.
 
 ## Install
 
@@ -107,6 +107,8 @@ Then, in the browser:
 - `http://127.0.0.1:9412/wp-admin/admin-post.php?action=ioefw_dev&script=run` runs the checks in `tests/run.php`. They cover adding and changing lines, tax added on top and tax included, coupons, stock, the guards, order terms in emails, on the order page and on a PDF invoice, and the settings.
 - `http://127.0.0.1:9412/wp-admin/admin-post.php?action=ioefw_dev&script=storage&to=posts` switches a fresh store to the older post-based order storage, to run the same checks there.
 - Tools > Plugin Check runs the WordPress.org checks.
+
+`php tests/package.php build/inline-order-editor-for-woocommerce` checks the built package without a store: `changelog.txt` is there in the WooCommerce.com Marketplace format, and its newest entry, the plugin header and the readme's Stable tag carry the same version.
 
 To pin other versions, add `"preferredVersions": { "php": "7.4", "wp": "6.8" }` to a copy of the blueprint. This version of the Playground CLI ignores the `--php` and `--wp` flags when a blueprint is given.
 

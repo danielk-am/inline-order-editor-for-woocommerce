@@ -5,7 +5,7 @@ Tags: woocommerce, phone orders, manual orders, edit order, order items
 Requires at least: 6.8
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -139,6 +139,9 @@ The order screen goes back to how WooCommerce ships it. Lines you added stay on 
 
 == Changelog ==
 
+= 1.0.3 =
+* The package now includes a changelog.txt file. The plugin's code is the same as in 1.0.2.
+
 = 1.0.2 =
 * Text is now trimmed the same way on every PHP version, ahead of a change to PHP's defaults in 8.6.
 * A line is now checked by its kind before it is read or changed. The order screen works as before.
@@ -151,6 +154,9 @@ The order screen goes back to how WooCommerce ships it. Lines you added stay on 
 * First release.
 
 == Upgrade Notice ==
+
+= 1.0.3 =
+Adds a changelog file to the package. Nothing changes on the order screen.
 
 = 1.0.2 =
 Small code fixes found by static checks. Nothing changes on the order screen.

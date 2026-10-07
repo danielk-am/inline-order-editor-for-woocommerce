@@ -1,0 +1,15 @@
+*** Inline Order Editor for WooCommerce Changelog ***
+
+2026-10-07 - version 1.0.3
+* Dev - The package now includes changelog.txt.
+
+2026-10-07 - version 1.0.2
+* Fix - Text is now trimmed the same way on every PHP version, ahead of a change to PHP's defaults in 8.6.
+* Tweak - A line is now checked by its kind before it is read or changed. The order screen works as before.
+
+2026-10-06 - version 1.0.1
+* Tweak - Saved messages and errors now show as toast notifications at the bottom of the screen.
+* Tweak - The tip line under the order's items is gone. How to change a line is in the plugin's description.
+
+2026-10-06 - version 1.0.0
+* First release.
