@@ -10,7 +10,7 @@ Not submitted yet. The upload page offers no new submission form while an earlie
 
 ## What to upload
 
-Build it with `bin/build.sh --zip`. The file is `build/inline-order-editor-for-woocommerce.zip`. The same file is attached to the v1.0.2 release on GitHub, with its checksum (sha256 `8395d6b36811b932cc3f9c5ce54fe626f56d4299403ccc6ce8a5fafddc8a59b5`) and the Plugin Check result for that exact file.
+Build it with `bin/build.sh --zip`. The file is `build/inline-order-editor-for-woocommerce.zip`. The same file is attached to the v1.0.3 release on GitHub, with its checksum (sha256 `0b7caafa8cd33c6c560601cbe76b6b7c4253760a637663fd7ae9ca32338a6204`) and the Plugin Check result for that exact file. Version 1.0.3 has the same code as 1.0.2 and adds `changelog.txt`, which the WooCommerce.com Marketplace asks for and WordPress.org does not mind.
 
 The repository has been public since 6 October 2026, so the links in the plugin's header and readme resolve.
 
@@ -38,6 +38,8 @@ WordPress.org asks for Plugin Check only. These were run as well, with open tool
 - PHPCompatibility for PHP 7.4 and later, and PHPStan at level 2 with WordPress and WooCommerce stubs: nothing found. Version 1.0.1 had five `trim()` calls that PHP 8.6 will treat differently and 19 PHPStan messages. Version 1.0.2 fixes both. The `trim()` calls are reported only when the range checked reaches PHP 8.6, which is not released yet, and the PHPStan messages only from level 2, so 1.0.1 was clean for PHP 7.4 to 8.5 and at level 0.
 - `tests/run.php`: 107 checks, 0 failed, on WordPress 7.1.3 with WooCommerce 11.1.2 and PHP 8.5, with HPOS and with post-based order storage. 105 checks, 0 failed, on WordPress 6.8.10 with WooCommerce 10.0.6 and PHP 7.4.33.
 - An activation run on WordPress 7.1.3 with WooCommerce 11.1.2 and PHP 8.5, and on WordPress 6.8.11 with WooCommerce 10.0.6 and PHP 7.4.33, both with HPOS: admin pages load, a product and an administrator's order are created, a guest adds to cart and checks out with cash on delivery, the plugin is switched off and on again, and the debug log, read from the store's first boot, has no line that a control store without the plugin does not also have. WooCommerce logs a notice and some database errors of its own on these Playground stores.
+
+Version 1.0.3, released the same day, was checked again on the newer stack with HPOS: `tests/run.php` 107 of 107, Plugin Check with no errors or warnings, the static checks above with nothing found, and `php tests/package.php` 8 of 8. The older stack and post-based storage were not run again for it.
 
 ## Name
 
